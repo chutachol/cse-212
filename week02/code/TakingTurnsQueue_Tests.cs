@@ -5,13 +5,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 // Fix the code being tested to match requirements and make all tests pass. 
 
 [TestClass]
-public class TakingTurnsQueueTests
+public class TakingTurnsQueueTests  // CHANGED FROM PriorityQueueTests
 {
     [TestMethod]
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3) and
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
+    // 1. People with turns = 0 (infinite) were not being re-enqueued
+    // 2. People with turns <= 0 (infinite) were not handled correctly
+    // 3. The logic only re-enqueued when turns > 1, missing turns = 1 case
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -44,6 +47,8 @@ public class TakingTurnsQueueTests
     // After running 5 times, add George with 3 turns.  Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
     // Defect(s) Found: 
+    // 1. Same as above - infinite turns not handled
+    // 2. Turn decrement logic was incorrect
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -86,6 +91,8 @@ public class TakingTurnsQueueTests
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
     // Defect(s) Found: 
+    // 1. People with turns = 0 (infinite) were not being re-enqueued at all
+    // 2. The condition `if (person.Turns > 1)` excluded turns = 0 case
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -117,6 +124,8 @@ public class TakingTurnsQueueTests
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
     // Defect(s) Found: 
+    // 1. People with negative turns (infinite) were not being re-enqueued
+    // 2. Negative turn values were not handled in the condition check
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -144,6 +153,7 @@ public class TakingTurnsQueueTests
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
     // Defect(s) Found: 
+    // 1. No defects found in empty queue handling - this test was passing
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
